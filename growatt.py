@@ -5,6 +5,7 @@ import logging
 import urllib
 import subprocess
 import atexit
+import sys
 
 import RPi.GPIO as GPIO
 
@@ -212,6 +213,7 @@ def connect():
     except Exception as ex:
         app.logger.error('Connecting to Inverter Failed=[' + str(ex) + ']')
         exec_action('sendnotification', ['growatt_connection_failed', urllib.parse.quote_plus(str(ex))])
+        sys.exit(1)
 
 def configure():
     with open('users.txt') as file:
@@ -220,10 +222,12 @@ def configure():
                 users[line.strip().split(' ')[0]] = line.strip().split(' ')[1]
     app.logger.error(users.keys())
 
+
 @auth.verify_password
 def verify_password(username, password):
     if username in users and users.get(username) == password:
         return username
+
 
 @app.route("/")
 def hello():
